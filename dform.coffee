@@ -44,7 +44,6 @@
 #   feedback
 
 $ = global.jQuery
-util = require("./util")
 
 fieldSelector = "input, select, textarea"
 
@@ -78,7 +77,7 @@ class DForm
 		for node in @subscribers()
 			triggers = (trg for trg in $(node).data("sub").split(" ") when trg)
 			ids.push(node.id) if name in triggers
-			util.error("missing ID", node) unless node.id
+			console.error("missing ID", node) unless node.id
 		return unless ids.length
 
 		targets = $(document.getElementById(id) for id in ids)

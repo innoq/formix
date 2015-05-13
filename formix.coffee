@@ -55,10 +55,10 @@ fieldSelector = "input, select, textarea"
 # are passed the form, originating field and (to-be-)updated elements
 module.exports = (selector, options) ->
 	options ||= {}
-	dform = new DForm(selector, options.pending, options.before, options.after)
+	dform = new Formix(selector, options.pending, options.before, options.after)
 	return dform.form
 
-class DForm
+class Formix
 	constructor: (selector, @pending = "pending", @before, @after) ->
 		@form = if selector.jquery then selector else $(selector)
 		self = @
@@ -123,16 +123,16 @@ class DForm
 			for field in gatherFields(el)
 				continue if el.prop("disabled")
 				el.prop("disabled", true)
-				el.data("dform-disabled", true)
+				el.data("formix-disabled", true)
 		return
 
 	uncloak: (els) ->
 		for node in els
 			el = $(node).removeClass(@pending)
 			for field in gatherFields(el)
-				continue unless el.data("dform-disabled")
+				continue unless el.data("formix-disabled")
 				el.prop("disabled", false)
-				el.removeData("dform-disabled")
+				el.removeData("formix-disabled")
 		return
 
 gatherFields = (el) ->

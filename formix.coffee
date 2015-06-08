@@ -5,9 +5,10 @@
 # subscribe to any field - corresponding changes trigger a form submission, with
 # subscribers being updated based on the server response
 #
-# subscriptions are expressed via a `data-sub` attribute, a space-separated list
-# referencing the respective fields' `name` - note that subscribers also require
-# an `id` attribute
+# subscriptions are expressed via a combination of a "formix-sub" class and a
+# `data-sub` attribute, the latter being a space-separated list referencing the
+# respective fields' `name` - note that subscribers also require an `id`
+# attribute
 #
 # NB:
 # the browser history (i.e. URL) remains untouched, as the server is expected to
@@ -18,7 +19,7 @@
 #     <form action="/catalog" method="post">
 #         <input type="search" name="videogame">
 #         ...
-#         <label id="platform" class="hidden" data-sub="videogame">
+#         <label id="platform" class="formix-sub hidden" data-sub="videogame">
 #             <select name="platform" disabled></select>
 #         </label>
 #     </form>
@@ -27,7 +28,7 @@
 # expecting the server to respond with updated HTML from which the `#platform`
 # element is extracted, replacing the existing element of the same ID:
 #
-#     <label id="platform" class="updated" data-sub="videogame">
+#     <label id="platform" class="formix-sub updated" data-sub="videogame">
 #         <select name="platform">
 #             <option>Windows</option>
 #             <option>PlayStation 3</option>
@@ -61,14 +62,16 @@ module.exports = (selector, options) ->
 	return dform.form
 
 class Formix
-	constructor: (selector, @pending = "pending", @before, @after) ->
+	constructor: (selector, @pending = "pending", @before, @after,
+			@scope = $(document.body)) -> # XXX: awkward API
 		@form = if selector.jquery then selector else $(selector)
+
 		self = @
 		@form.on("change", fieldSelector, (ev) ->
 			return self.onChange(ev, $(this)))
 
-	subscribers: -> # TODO: allow subscribers from outside the form?
-		@_subscribers = @form.find("[data-sub]") unless @_subscribers
+	subscribers: ->
+		@_subscribers ||= @scope.find(".formix-sub[data-sub]") # TODO: customizable
 		return @_subscribers
 
 	onChange: (ev, field) ->

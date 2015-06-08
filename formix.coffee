@@ -52,7 +52,9 @@ fieldSelector = "input, select, textarea"
 # while they are being updated (defaults to "pending")
 # `options.before` and `options.after` are optional functions which are invoked
 # before the form submission and after the response has been processed - both
-# are passed the form, originating field and (to-be-)updated elements
+# are passed the form, originating field and (to-be-)updated elements, `after`
+# is additionally passed the respective URL (extracted from the response's
+# `<link # rel="self" href="...">`) and page title if present
 module.exports = (selector, options) ->
 	options ||= {}
 	dform = new Formix(selector, options.pending, options.before, options.after)
@@ -80,8 +82,10 @@ class Formix
 			console.error("missing ID", node) unless node.id
 		return unless ids.length
 
+		# XXX: excessive nesting and use of closure variables
 		targets = $(document.getElementById(id) for id in ids)
 		updates = $()
+		url = title = null
 		@before.call(null, @form, field, targets) if @before
 		@submit().
 			done((doc) ->
@@ -91,10 +95,13 @@ class Formix
 					$(target).replaceWith(update)
 					updates = updates.add(update)
 				delete @_subscribers
+
+				url = doc.find("link[rel=self]").attr("href")
+				title = doc.find("title").text()
 				return).
 			always(=>
 				@uncloak(targets) # some might not have been replaced
-				@after.call(null, @form, field, updates) if @after
+				@after.call(null, @form, field, updates, url, title) if @after # XXX: awkward API
 				return)
 		@cloak(targets) # NB: disables fields, thus post-serialization
 

@@ -94,9 +94,9 @@ class Formix
 			done((doc) ->
 				for target, i in targets
 					update = doc.find("##{target.id}")[0]
-					return unless update
-					$(target).replaceWith(update)
-					updates = updates.add(update)
+					if update
+						$(target).replaceWith(update)
+						updates = updates.add(update)
 				delete @_subscribers
 
 				url = doc.find("link[rel=self]").attr("href")

@@ -5,6 +5,7 @@
   "author": "FND",
   "license": "Apache-2.0",
   "homepage": "https://github.com/innoq/formix",
+  "main": "index.coffee",
   "repository": {
     "type": "git",
     "url": "https://github.com/innoq/formix.git"
